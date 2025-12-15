@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decent Chat</title>
+    <link rel="icon" type="image/png" href="img/favicon.ico">
+    
+    <script src="lib/gun.js"></script>
+    <script src="lib/sea.js"></script>
+    
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="three_style.css">
+    <script src="main.js"></script>
+
+    <script src="lib/three.min.js"></script>
+    <script src="lib/GLTFLoader.js"></script>
+    <script src="lib/OrbitControls.js"></script>
+    <script src="lib/OBJLoader.js"></script>
+    <script src="lib/MTLLoader.js"></script>
+    <script src="lib/STLLoader.js"></script>
+
+</head>
+<body>
+
+    <div id="auth-screen">
+        <h2>Decent Chat</h2>
+        <input type="text" id="username" placeholder="Username">
+        <input type="password" id="password" placeholder="Password">
+        <div>
+            <button onclick="loginRegister('login')">Login</button>
+            <button onclick="loginRegister('register')">Register</button>
+        </div>
+        <p id="auth-error" style="color: red;"></p>
+    </div>
+
+    <div id="app-screen" class="hidden">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <button onclick="toggleSidebar()" style="font-size: 1.5em; cursor: pointer; background: none; border: none; color: white; padding: 0;" title="Close Menu">✕</button>
+                <hr>
+            </div>
+
+            <div class="sidebar-content">  
+                <h3>My Rooms</h3>
+                <div id="room-list"></div>
+                <hr>
+                <input type="text" id="new-room-name" placeholder="New Room Name">
+                <button onclick="createRoom()">Create Room</button>
+                
+                <hr>
+                <h4>My Identity (for invites)</h4>
+                <div style="display: flex; align-items: center; gap: 5px; margin-bottom: 15px;">
+                    <span id="my-pub" style="font-size: 0.7em; word-break: break-all; background: #000; padding: 5px; color: #aaa; flex-grow: 1;">Loading...</span>
+                    
+                    <button onclick="copyPub()" title="Copy Encryption Public Key" style="padding: 5px; background: #444; color: white;">📋</button>
+                </div>
+                <hr>
+                <div id="invites-section">
+                    <h4>Invites</h4>
+                    <div id="invite-list"></div>
+                </div>
+                <hr>
+                <div id="peer-management">
+                    <h4>Gun Peers</h4>
+                    <div id="peer-list-container" style="font-size: 0.7em; margin-bottom: 10px;"></div>
+                    <input type="text" id="new-peer-url" placeholder="New Peer URL">
+                    <button onclick="addPeer()">Add Peer & Reconnect</button>
+                </div>
+
+                <div style="margin-top: auto; padding-top: 20px;">
+                    <button onclick="logout()" style="background: #ff4d4d; width: 100%;">
+                        🚪 Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-chat">
+            <div class="chat-header" style="padding: 10px; background: #222; border-bottom: 1px solid #444; display: flex; justify-content: space-between; align-items: center;">
+                <button id="hamburger-menu" onclick="toggleSidebar()" style="font-size: 1.5em; cursor: pointer; background: none; border: none; color: white; padding: 0; margin-right: 15px; display: none;" title="Open Menu">☰</button>
+
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <button onclick="openAboutModal()" style="font-size: 1.5em; cursor: pointer; background: none; border: none; color: var(--accent); padding: 0; padding-right: 1em; padding-left: 1em; margin: 0;" title="About This Application">
+                        <img src="img/logo.png" style="height: 1.5em;">
+                    </button>
+                    
+                    <h3 id="current-room-name" style="margin: 0;">Select a Room</h3>
+                </div>
+                
+                <div style="display: flex; gap: 10px; align-items: center;"></div>
+
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <div id="invite-controls" class="hidden">
+                        <input type="text" id="invite-pub" placeholder="Paste User Encryption Key" style="width: 200px;">
+                        <button onclick="inviteUser()">Invite</button>
+                    </div>
+                    
+                    <button id="leave-delete-btn" class="hidden" onclick="deleteRoom(currentRoom.id)" style="background: #a00; color: white;">Leave/Delete</button>
+                </div>
+            </div>
+
+            <div id="chat-history" class="chat-history"></div>
+
+            <div class="chat-input-area">
+                <input type="text" id="msg-input" placeholder="Type a message..." disabled>
+                <input type="file" id="file-input" title="Select File">
+                
+                <button id="send-btn" onclick="sendMessage()" disabled>Send</button>
+            </div>
+        </div>
+
+        <div id="about-modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.8);">
+            <div style="background-color: #333; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 400px; border-radius: 8px;">
+                <span onclick="closeAboutModal()" style="color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
+                <h2>About Decent Chat</h2>
+                <p>A secure, peer-to-peer chat application built using <a href="https://github.com/amark/gun" target="_blank">Gun.js</a>.</p>
+                <p>The account and its data are saved to the GUN.js decentralized database. Warning: I am currently hosting a relay node but don't count on it being online forever. Also it may not store your data indefinitely, so any data you save is completely reliant on it unless you add add other ndoes.</p>
+                <p>Key features include:</p>
+                <ul>
+                    <li><b>Decentralized:</b> Messages and room data are stored across a network of Gun peers, not a central server.</li>
+                    <li><b>End-to-End Encrypted:</b> All messages and room keys are secured using cryptographic secrets derived from shared encryption keys.</li>
+                    <li><b>Session Management:</b> Users can add/remove network peers, and all application state (rooms, invites) is linked to your cryptographic identity.</li>
+                    <li><b>Multimedia Support:</b> Supports sending encrypted images and downloadable files (including 3D models).</li>
+                </ul>
+                <p>Your data security depends on keeping your password and private keys secure.</p>
+                <p>Developed by <a href="https://eecs.blog" target="_blank">The EECS Blog</a>.
+                <p><a  href="https://eecs.blog">Github repository</a></p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

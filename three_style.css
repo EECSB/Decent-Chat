@@ -1,0 +1,18 @@
+.viewer-container {
+    width: 450px; /* Standard size for chat view */
+    height: 450px;
+    border: 1px solid var(--accent);
+    border-radius: 5px;
+    margin-top: 5px;
+    overflow: hidden;
+    position: relative;
+    cursor: grab; /* Visual hint that it's interactive */
+}
+
+/* Optional: Make it full width on mobile */
+@media (max-width: 600px) {
+    .viewer-container {
+        width: 100%;
+        height: 300px;
+    }
+}
