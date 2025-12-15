@@ -103,7 +103,7 @@
             <div id="chat-history" class="chat-history"></div>
 
             <div class="chat-input-area">
-                <input type="text" id="msg-input" placeholder="Type a message..." disabled>
+                <input type="text" id="msg-input" placeholder="Type a message..." disabled onkeydown="handleInputKey(event)">
                 <input type="file" id="file-input" title="Select File">
                 
                 <button id="send-btn" onclick="sendMessage()" disabled>Send</button>
@@ -114,8 +114,8 @@
             <div style="background-color: #333; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 400px; border-radius: 8px;">
                 <span onclick="closeAboutModal()" style="color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
                 <h2>About Decent Chat</h2>
-                <p>A secure, peer-to-peer chat application built using <a href="https://github.com/amark/gun" target="_blank">Gun.js</a>.</p>
-                <p>The account and its data are saved to the GUN.js decentralized database. Warning: I am currently hosting a relay node but don't count on it being online forever. Also it may not store your data indefinitely, so any data you save is completely reliant on it unless you add add other ndoes.</p>
+                <p>A secure, peer-to-peer chat application built using <a href="https://github.com/amark/gun" target="_blank" style="color: var(--accent);">Gun.js</a>.</p>
+                <p>The account and its data are saved to the GUN.js decentralized database. Warning: I am currently hosting a relay node, but don't count on it being online forever. Also, it may not store your data indefinitely, so any data you save is completely reliant on it unless you add other nodes.</p>
                 <p>Key features include:</p>
                 <ul>
                     <li><b>Decentralized:</b> Messages and room data are stored across a network of Gun peers, not a central server.</li>
@@ -124,8 +124,8 @@
                     <li><b>Multimedia Support:</b> Supports sending encrypted images and downloadable files (including 3D models).</li>
                 </ul>
                 <p>Your data security depends on keeping your password and private keys secure.</p>
-                <p>Developed by <a href="https://eecs.blog" target="_blank">The EECS Blog</a>.
-                <p><a  href="https://eecs.blog">Github repository</a></p>
+                <p>Developed by <a href="https://eecs.blog" target="_blank" style="color: var(--accent);">The EECS Blog</a>.</p>
+                <p>Link to <a href="https://github.com/EECSB/Decent-Chat" target="_blank" style="color: var(--accent);">Github repository</a>.</p>
             </div>
         </div>
     </div>

@@ -546,6 +546,18 @@ function toggleMessageInput() {
     }
 }
 
+// Function to handle keyboard events in the message input
+function handleInputKey(event) {
+    // Check if the pressed key is 'Enter'
+    if (event.key === 'Enter' || event.keyCode === 13) {
+        // Prevent the default action (like adding a newline)
+        event.preventDefault(); 
+        
+        // Call existing function to process and send the message
+        sendMessage();
+    }
+}
+
 // ------------------------------------------
 // INVITATION SYSTEM
 // ------------------------------------------
@@ -736,7 +748,7 @@ function closeAboutModal() {
     }
 }
 
-// Optional: Close modal if user clicks outside of the content box
+// Close modal if user clicks outside of the content box
 window.onclick = function(event) {
     const modal = document.getElementById('about-modal');
     if (event.target == modal) {
@@ -744,8 +756,7 @@ window.onclick = function(event) {
     }
 }
 
-// --- MOBILE SIDEBAR TOGGLE ---
-
+// Mobile sidebar toggle
 function toggleSidebar() {
     const sidebar = document.querySelector('.sidebar');
     if (sidebar) {
