@@ -1,10 +1,15 @@
 // ------------------------------------------
 // INITIALIZATION
 // ------------------------------------------
-// We use a public relay peer to sync data.
-const DEFAULT_PEERS = ['https://eecs.blog/gun']; //, 'https://gun-manhattan.herokuapp.com/gun' doesn't work anymore
 
-// State
+//Dev. only: 'http://localhost:8765/gun'
+//'https://gun-manhattan.herokuapp.com/gun' doesn't work anymore
+//'https://eecs.blog/gun' I was trying to run my own node on my blog hosting server but I'm having problems with websockets.
+
+//We use a public relay peers found at https://github.com/amark/gun/wiki/volunteer.dht 
+//For now just hardcode them.
+const DEFAULT_PEERS = [ 'https://gun.defucc.me/gun', 'https://gun.o8.is/gun', 'https://shogun-relay.scobrudot.dev/gun', 'https://relay.peer.ooo/gun' ];
+//State
 let currentRoom = null; // { id, name, keyPair }
 
 const SEA = Gun.SEA;
@@ -38,39 +43,41 @@ function initializeGun() {
 // PEERS
 // ------------------------------------------
 function addPeer() {
-    const urlInput = document.getElementById('new-peer-url');
-    const newUrl = urlInput.value.trim();
+    //Support both sidebar and login input fields.
+    const sidebarInput = document.getElementById('new-peer-url').value;
+    const loginInput = document.getElementById('login-new-peer-url').value;
 
-    if (!newUrl) {
+    let newUrl = sidebarInput;
+    if(sidebarInput == '')
+        newUrl = loginInput;
+
+    newUrl = newUrl.trim();
+
+    //Validate input.
+    if (!newUrl == '') 
         return alert("Please enter a valid peer URL.");
-    }
     
-    // Check if URL is valid and hasn't been added
-    if (!newUrl.startsWith('http')) {
+    if (!newUrl.startsWith('http'))
         return alert("URL must start with http:// or https://");
-    }
 
+    //Check for duplicates.
     let peers = getPeers();
-    if (peers.includes(newUrl)) {
+    if (peers.includes(newUrl))
         return alert("Peer already exists in the list.");
-    }
 
-    // 1. Update persistent peer list
+    //1. Update persistent peer list
     peers.push(newUrl);
     savePeers(peers);
 
-    // 2. Re-initialize Gun with the new list
-    alert("Peers updated. Reconnecting to the network. You must re-authenticate.");
-    
-    // Clear the input
-    urlInput.value = '';
+    //2. Re-initialize Gun with the new list and notify the user
+    // Clear both inputs if present
+    if (sidebarInput) sidebarInput.value = '';
+    if (loginInput) loginInput.value = '';
 
-    // Re-initialize Gun and prompt for re-login
-    initializeGun(() => {
-        // Re-run application initialization after re-auth success
-        alert("Successfully re-authenticated to the new peer network!");
-        // NOTE: You must ensure your existing initApp() or setup logic can handle being called here.
-    });
+    alert("Peers updated. Reconnecting to the network. You may need to re-authenticate.");
+
+    //Re-initialize Gun and prompt for re-login.
+    initializeGun();
 
     // NOTE: The user must manually re-enter their alias and password now,
     // as the session token from the old network may not be immediately valid 
@@ -105,6 +112,10 @@ function removePeer(urlToRemove) {
     initializeGun(); 
 }
 
+function restoreDefaultPeers() {
+    savePeers(DEFAULT_PEERS);
+}
+
 function getPeers() {
     const storedPeers = localStorage.getItem('gunPeers');
     return storedPeers ? JSON.parse(storedPeers) : DEFAULT_PEERS;
@@ -116,42 +127,52 @@ function savePeers(peers) {
 }
 
 function renderPeerList(peers) {
-    const listContainer = document.getElementById('peer-list-container');
-    if (!listContainer) return;
+    const sidebarContainer = document.getElementById('peer-list-container');
+    const loginContainer = document.getElementById('login-peer-list');
 
-    listContainer.innerHTML = '<strong>Connected Peers:</strong>';
-    
-    // Create a list item for each peer with a remove button
-    peers.forEach(peerUrl => {
-        const peerItem = document.createElement('div');
-        peerItem.style.display = 'flex';
-        peerItem.style.alignItems = 'center';
-        peerItem.style.justifyContent = 'space-between';
-        peerItem.style.padding = '3px 0';
+    if (!sidebarContainer && !loginContainer) return;
 
-        // Peer URL text
-        const urlSpan = document.createElement('span');
-        urlSpan.innerText = peerUrl;
-        urlSpan.style.wordBreak = 'break-all';
-        urlSpan.style.flexGrow = '1';
-        urlSpan.style.marginRight = '8px';
+    // Helper to render items into a given container.
+    function renderInto(container, showRemove) {
+        container.innerHTML = '<strong>Connected Peers:</strong>';
+        container.style.display = 'block';
+        peers.forEach(peerUrl => {
+            const peerItem = document.createElement('div');
+            peerItem.style.display = 'flex';
+            peerItem.style.alignItems = 'center';
+            peerItem.style.justifyContent = 'space-between';
+            peerItem.style.padding = '3px 0';
 
-        // Remove Button
-        const removeBtn = document.createElement('button');
-        removeBtn.innerText = 'X';
-        removeBtn.title = `Remove ${peerUrl}`;
-        removeBtn.style.background = '#880000';
-        removeBtn.style.color = 'white';
-        removeBtn.style.padding = '2px 6px';
-        removeBtn.style.cursor = 'pointer';
-        
-        // Pass the URL to the removePeer function
-        removeBtn.onclick = () => removePeer(peerUrl);
+            const urlSpan = document.createElement('span');
+            urlSpan.innerText = peerUrl;
+            urlSpan.style.wordBreak = 'break-all';
+            urlSpan.style.flexGrow = '1';
+            urlSpan.style.marginRight = '8px';
 
-        peerItem.appendChild(urlSpan);
-        peerItem.appendChild(removeBtn);
-        listContainer.appendChild(peerItem);
-    });
+            peerItem.appendChild(urlSpan);
+
+            if (showRemove) {
+                const removeBtn = document.createElement('button');
+                removeBtn.innerText = 'X';
+                removeBtn.title = `Remove ${peerUrl}`;
+                removeBtn.style.background = '#880000';
+                removeBtn.style.color = 'white';
+                removeBtn.style.padding = '2px 6px';
+                removeBtn.style.cursor = 'pointer';
+                removeBtn.onclick = () => removePeer(peerUrl);
+                peerItem.appendChild(removeBtn);
+            }
+
+            container.appendChild(peerItem);
+        });
+    }
+
+    if (sidebarContainer) 
+        renderInto(sidebarContainer, true);
+
+    // Allow removal from the login screen as well (gives full peer management without logging in)
+    if (loginContainer) 
+        renderInto(loginContainer, true);
 }
 
 

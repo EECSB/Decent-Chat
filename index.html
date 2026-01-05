@@ -19,7 +19,6 @@
     <script src="lib/OBJLoader.js"></script>
     <script src="lib/MTLLoader.js"></script>
     <script src="lib/STLLoader.js"></script>
-
 </head>
 <body>
 
@@ -32,6 +31,25 @@
             <button onclick="loginRegister('register')">Register</button>
         </div>
         <p id="auth-error" style="color: red;"></p>
+
+        <div id="login-peers" style="margin-top: 6em;max-width: 20em;">
+            <h4 style="margin: 6px 0 4px 0;">Connected Peers</h4>
+            <div id="login-peer-list" style="font-size:0.8em; word-break:break-all; color: #666;"></div>
+
+            <div style="display:flex; gap:6px; margin-top:8px;">
+                <input type="text" id="login-new-peer-url" placeholder="Add Peer URL" style="flex:1;" />
+                <button onclick="addPeer()" style="padding:6px;">Add</button>
+            </div>
+
+            <div style="margin-top:6px; font-size:0.8em; color:#888;">
+                <div>
+                    Adding/removing peers will reconnect to the network. You may need to re-authenticate after changes.
+                </div>
+                <div>
+                    <button onclick="restoreDefaultPeers()" style="margin-top:4px; padding:4px; font-size:0.8em;">Restore Default Peers</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div id="app-screen" class="hidden">
@@ -115,7 +133,7 @@
                 <span onclick="closeAboutModal()" style="color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
                 <h2>About Decent Chat</h2>
                 <p>A secure, peer-to-peer chat application built using <a href="https://github.com/amark/gun" target="_blank" style="color: var(--accent);">Gun.js</a>.</p>
-                <p>The account and its data are saved to the GUN.js decentralized database. Warning: I am currently hosting a relay node, but don't count on it being online forever. Also, it may not store your data indefinitely, so any data you save is completely reliant on it unless you add other nodes.</p>
+                <p>The account and its data are saved to the GUN.js decentralized database. <b>Warning: I'm not hosting a relay node, so any data you save is reliant on public nodes, which may not store your data indefinitely.</b> You can add additional nodes under: Gun Peers</p>
                 <p>Key features include:</p>
                 <ul>
                     <li><b>Decentralized:</b> Messages and room data are stored across a network of Gun peers, not a central server.</li>
