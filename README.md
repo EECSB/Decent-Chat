@@ -10,7 +10,7 @@ I decided to use Gun.js for storage/communication as I have already used it in a
 
 The account and its data are saved to the GUN.js decentralized database. **Warning: I'm not hosting a relay node, so any data you save is reliant on public nodes, which may not store your data indefinitely.** You can add additional nodes under: Gun Peers
 
-**Warning:** I mostly "vibe coded" the app with **Google AI Studio** in one day, as I thought this small project would be a good test case for it. So the code might not be the best, and there might be bugs or vulnerabilities in the app. Use it at your own risk.
+**Warning:** I mostly "vibe coded" the app with **Google Gemini Coder** in one day, as I thought this small project would be a good test case for it. So the code might not be the best, and there might be bugs or vulnerabilities in the app. Use it at your own risk.
 
 ## App Features
 - **Decentralized:** Messages and room data are stored across a network of Gun peers, not a central server.
